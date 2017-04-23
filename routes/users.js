@@ -4,10 +4,20 @@ const config = require('config');
 const rp = require('request-promise');
 const co = require('co');
 const uuid = require('node-uuid');
+const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
   res.send('respond with a resource');
+});
+
+router.get('/login', (req, res, next) => {
+  const loginService = new LoginService(req, res);
+
+  loginService.login().then(result => {
+    console.log('微信用户信息', result.userInfo);
+    res.json({userInfo});
+  });
 });
 
 router.post('/login', function (req, res, next) {
@@ -26,7 +36,6 @@ router.post('/login', function (req, res, next) {
     const result = yield rp(options);
     console.log('返回的sessionkey', result);
     const sessionId = uuid.v4();
-    redisStore.set(sessionId, `${result.session_key}${result.openid}`, 7200);
     res.json({ sessionId });
   }).catch((err) => {
     console.log('获取session_key失败', err)

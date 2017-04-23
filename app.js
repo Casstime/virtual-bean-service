@@ -6,10 +6,16 @@ const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
 const weappSession = require('weapp-session');
+const qcloud = require('qcloud-weapp-server-sdk');
 const config = require('config');
 // const mongoose = require('mongoose');
 //
 // mongoose.connect('mongodb://localhost/virtualbean');
+
+qcloud.config({
+  ServerHost: 'www.javenleung.com',
+  AuthServerUrl: 'https://www.javenleung.com'
+});
 
 const routes = require('./routes/index');
 const users = require('./routes/users');
@@ -30,23 +36,23 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(weappSession({
-  appId: config.appId,      // 微信小程序 APP ID
-  appSecret: config.appSecret,  // 微信小程序 APP Secret
-
-  // REDIS 配置
-  // @see https://www.npmjs.com/package/redis#options-object-properties
-  redisConfig: {
-    host: '127.0.0.1',
-    port: 6379,
-    password: '123456'
-  },
-
-  // （可选）指定在哪些情况下不使用 weapp-session 处理
-  ignore(req, res) {
-    return /^\/static\//.test(req.url);
-  }
-}));
+// app.use(weappSession({
+//   appId: config.appId,      // 微信小程序 APP ID
+//   appSecret: config.appSecret,  // 微信小程序 APP Secret
+//
+//   // REDIS 配置
+//   // @see https://www.npmjs.com/package/redis#options-object-properties
+//   redisConfig: {
+//     host: '127.0.0.1',
+//     port: 6379,
+//     password: '123456'
+//   },
+//
+//   // （可选）指定在哪些情况下不使用 weapp-session 处理
+//   ignore(req, res) {
+//     return /^\/static\//.test(req.url);
+//   }
+// }));
 
 app.use((req, res) => {
   res.json({
