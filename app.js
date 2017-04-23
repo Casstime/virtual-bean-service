@@ -5,9 +5,11 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const expressSession = require('express-session');
-const redisStore = require('./services/redis');
-
+const weappSession = require('weapp-session');
+const config = require('config');
+// const mongoose = require('mongoose');
+//
+// mongoose.connect('mongodb://localhost/virtualbean');
 
 const routes = require('./routes/index');
 const users = require('./routes/users');
@@ -26,14 +28,32 @@ app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-// 设置Express的Session存储中间件
-app.use(expressSession({
-  store: redisStore,
-  secret: '123456',
-  resave: false,
-  saveUninitialized: false
-}));
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.use(weappSession({
+  appId: config.appId,      // 微信小程序 APP ID
+  appSecret: config.appSecret,  // 微信小程序 APP Secret
+
+  // REDIS 配置
+  // @see https://www.npmjs.com/package/redis#options-object-properties
+  redisConfig: {
+    host: '127.0.0.1',
+    port: 6379,
+    password: '123456'
+  },
+
+  // （可选）指定在哪些情况下不使用 weapp-session 处理
+  ignore(req, res) {
+    return /^\/static\//.test(req.url);
+  }
+}));
+
+app.use((req, res) => {
+  res.json({
+    // 在 req 里可以直接取到微信用户信息
+    wxUserInfo: req.$wxUserInfo
+  });
+});
 
 app.use('/', routes);
 app.use('/users', users);

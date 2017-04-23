@@ -4,8 +4,6 @@ const config = require('config');
 const rp = require('request-promise');
 const co = require('co');
 const uuid = require('node-uuid');
-const redisStore = require('../services/redis');
-
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
