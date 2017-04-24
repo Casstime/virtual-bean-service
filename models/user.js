@@ -26,8 +26,8 @@ const userSchema = new Schema({
 
 const User = mongoose.model('User', userSchema);
 
-User.statics.findOrCreateByOpenid = function (openid, callback) {
-  return User.findOne({openid}, function (err, user) {
+userSchema.statics.findOrCreateByOpenid = function (openid, callback) {
+  User.findOne({openid}, function (err, user) {
     if (err) {
       return callback(err);
     }

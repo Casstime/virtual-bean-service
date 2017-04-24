@@ -4,6 +4,7 @@ const config = require('config');
 const co = require('co');
 const rp = require('request-promise');
 const LoginService = require('qcloud-weapp-server-sdk').LoginService;
+const User = require('../models/user');
 
 function findOrCreateUser(openid) {
   return new Promise((reject, resolve) => {
