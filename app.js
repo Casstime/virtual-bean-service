@@ -8,9 +8,9 @@ const bodyParser = require('body-parser');
 const weappSession = require('weapp-session');
 const qcloud = require('qcloud-weapp-server-sdk');
 const config = require('config');
-// const mongoose = require('mongoose');
-//
-// mongoose.connect('mongodb://localhost/virtualbean');
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://localhost/virtualbean');
 
 qcloud.config({
   ServerHost: 'www.javenleung.com',

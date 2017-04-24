@@ -8,19 +8,6 @@ const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 
 /* GET users listing. */
 router.get('/', function(req, res, next) {
-  // const loginService = new LoginService(req, res);
-  //
-  // loginService.check().then(result => {
-  //   res.json({
-  //     code: 0,
-  //     message: 'ok',
-  //     data: {
-  //       userInfo: result.userInfo
-  //     },
-  //   });
-  // }).catch(err => {
-  //   console.log(err);
-  // });
   const jsCode = req.body.js_code;
   const options = {
       uri: 'https://api.weixin.qq.com/sns/jscode2session',
@@ -35,8 +22,7 @@ router.get('/', function(req, res, next) {
   co(function* () {
       const result = yield rp(options);
       console.log('返回的sessionkey', result);
-      const sessionId = uuid.v4();
-      res.json({ sessionId });
+      res.json({ sessionKey: result.session_key, openid: result.openid });
     }).catch((err) => {
       console.log('获取session_key失败', err)
     });
