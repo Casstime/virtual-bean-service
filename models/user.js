@@ -24,9 +24,8 @@ const userSchema = new Schema({
   timestamps: true
 });
 
-const User = mongoose.model('User', userSchema);
-
 userSchema.statics.findOrCreateByOpenid = function (openid, callback) {
+  const User = mongoose.model('User');
   User.findOne({openid}, function (err, user) {
     if (err) {
       return callback(err);
@@ -45,5 +44,7 @@ userSchema.statics.findOrCreateByOpenid = function (openid, callback) {
     callback(null, user);
   });
 };
+
+const User = mongoose.model('User', userSchema);
 
 module.exports = User;
