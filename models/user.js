@@ -26,4 +26,24 @@ const userSchema = new Schema({
 
 const User = mongoose.model('User', userSchema);
 
+User.statics.findOrCreateByOpenid = function (openid, callback) {
+  return User.findOne({openid}, function (err, user) {
+    if (err) {
+      return callback(err);
+    }
+    if (!user) {
+      const userObj = new User({
+        openid,
+        nickname: '',
+        groups: []
+      });
+      userObj.save(function (err, result) {
+        if (err) return callback(err);
+        callback(null,result);
+      });
+    }
+    callback(null, user);
+  });
+};
+
 module.exports = User;
