@@ -5,6 +5,15 @@ const co = require('co');
 const rp = require('request-promise');
 const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 
+function findOrCreateUser(openid) {
+  return new Promise((reject, resolve) => {
+    User.findOrCreateByOpenid(openid, function (err, user) {
+      if (err) return reject(err);
+      resolve(user);
+    });
+  });
+}
+
 router.post('/', (req, res, next) => {
   const jsCode = req.body.js_code;
   const options = {
@@ -20,7 +29,8 @@ router.post('/', (req, res, next) => {
   co(function* () {
     const result = yield rp(options);
     console.log('返回的sessionkey', result);
-    res.json({ sessionKey: result.session_key, openid: result.openid });
+    const user = yield findOrCreateUser(result.openid);
+    res.json({ sessionKey: result.session_key, openid: result.openid, userId: user._id });
   }).catch((err) => {
     console.warn('获取session_key失败', err);
   });
