@@ -7,7 +7,7 @@ const HttpError = require('../utils/HttpError');
 
 router.get('/list', function (req, res, next) {
   const openid = req.query.openid;
-  User.findOne({openid}).populate('groups').exec(function (err, user) {
+  User.findOne({openid}).populate('groups', ['_id', 'name']).exec(function (err, user) {
     if (err) return next(err);
     console.log('获取用户的群列表', user);
     const groups = user ? user.groups : [];
@@ -17,6 +17,7 @@ router.get('/list', function (req, res, next) {
 
 router.post('/create_group', function(req, res, next) {
   const openid = req.body.openid;
+  const nickname = req.body.nickname;
   const groupName = req.body.groupName;
   const groupPwd = req.body.groupPwd;
   console.log('群', groupName, groupPwd);
@@ -27,16 +28,16 @@ router.post('/create_group', function(req, res, next) {
     const group = new Group({
       name: groupName,
       password: groupPwd,
-      members: [{_id: user._id}]
+      members: [{
+        userId: user._id,
+        nickname,
+        role: 'MASTER'
+      }]
     });
     group.save(function (err, result) {
       if (err) return next(err);
       const groups = user.groups;
-      groups.push({
-        id: result._id,
-        nickname: user.nickname,
-        role: 'MASTER'
-      });
+      groups.push(result._id);
       User.update({_id: user._id}, {$set: {groups: groups}}, function (err, updateResult) {
         if (err) return next(err);
         res.json(updateResult);

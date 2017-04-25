@@ -9,16 +9,8 @@ const userSchema = new Schema({
     type: String
   },
   groups: [{
-    id: {
-      type: Schema.Types.ObjectId,
-      ref: 'Group'
-    },
-    nickname: {
-      type: String
-    },
-    role: {
-      type: String
-    }
+    type: Schema.Types.ObjectId,
+    ref: 'Group'
   }]
 },{
   timestamps: true

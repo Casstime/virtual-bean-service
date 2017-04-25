@@ -10,8 +10,15 @@ const groupSchema = new Schema({
     type: String
   },
   members: [{
-    type: Schema.Types.ObjectId,
-    ref: 'User'
+    userId: {
+      type: Schema.Types.ObjectId
+    },
+    nickname: {
+      type: String
+    },
+    role: {
+      type: String
+    }
   }]
 }, {
   timestamps: true
