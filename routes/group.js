@@ -32,12 +32,12 @@ router.post('/create_group', function(req, res, next) {
     group.save(function (err, result) {
       if (err) return next(err);
       const groups = user.groups;
-      const newGroups = groups.push({
+      groups.push({
         id: result._id,
         nickname: user.nickname,
         role: 'MASTER'
       });
-      User.update({_id: user._id}, {$set: {groups: newGroups}}, function (err, updateResult) {
+      User.update({_id: user._id}, {$set: {groups: groups}}, function (err, updateResult) {
         if (err) return next(err);
         res.json(updateResult);
       });
