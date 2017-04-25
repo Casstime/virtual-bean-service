@@ -11,7 +11,7 @@ describe('users', () => {
         qs: {
           appid: config.appId,
           secret: config.appSecret,
-          js_code: '0135HpAu1KxtKa0cZlBu1dZgAu15HpAV',
+          js_code: '003AfDWw0ekbsh1aBwYw0hASWw0AfDWb',
           grant_type: 'authorization_code'
         },
         json: true

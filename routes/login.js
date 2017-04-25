@@ -7,7 +7,7 @@ const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 const User = require('../models/user');
 
 function findOrCreateUser(openid) {
-  return new Promise((reject, resolve) => {
+  return new Promise((resolve, reject) => {
     User.findOrCreateByOpenid(openid, function (err, user) {
       if (err) return reject(err);
       resolve(user);

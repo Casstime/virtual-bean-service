@@ -38,7 +38,7 @@ userSchema.statics.findOrCreateByOpenid = function (openid, callback) {
       });
       userObj.save(function (err, result) {
         if (err) return callback(err);
-        callback(null,result);
+        callback(null, result);
       });
     }
     callback(null, user);
