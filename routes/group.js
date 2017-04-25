@@ -7,8 +7,9 @@ const HttpError = require('../utils/HttpError');
 
 router.get('/list', function (req, res, next) {
   const openid = req.query.openid;
-  User.findOne({openid}).populate('groups.id', ['name']).exec(function (err, user) {
+  User.findOne({openid}).populate('groups').exec(function (err, user) {
     if (err) return next(err);
+    console.log('获取用户的群列表', user);
     const groups = user ? user.groups : [];
     res.json(groups);
   })
