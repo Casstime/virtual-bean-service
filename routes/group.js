@@ -5,6 +5,15 @@ const Group = require('../models/group');
 const User = require('../models/user');
 const HttpError = require('../utils/HttpError');
 
+router.get('/list', function (req, res, next) {
+  const openid = req.query.openid;
+  User.findOne({openid}).populate('groups.id', ['name']).exec(function (err, user) {
+    if (err) return next(err);
+    const groups = user ? user.groups : [];
+    res.json(groups);
+  })
+});
+
 router.post('/create_group', function(req, res, next) {
   const openid = req.body.openid;
   const groupName = req.body.groupName;
