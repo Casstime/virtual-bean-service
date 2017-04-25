@@ -20,10 +20,17 @@ router.post('/create_group', function(req, res, next) {
       members: [{_id: user._id}]
     });
     group.save(function (err, result) {
-      if (err) {
-        return next(err);
-      }
-      res.json(result);
+      if (err) return next(err);
+      const groups = user.groups;
+      const newGroups = groups.push({
+        id: result._id,
+        nickname: user.nickname,
+        role: 'MASTER'
+      });
+      User.update({_id: user._id}, {$set: {groups: newGroups}}, function (err, updateResult) {
+        if (err) return next(err);
+        res.json(updateResult);
+      });
     });
   });
 });
