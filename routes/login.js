@@ -15,6 +15,9 @@ function findOrCreateUser(openid) {
   });
 }
 
+/**
+ * 用户登录，凭jscode向微信取session_key，openid
+ */
 router.post('/', (req, res, next) => {
   const jsCode = req.body.js_code;
   const options = {

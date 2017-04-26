@@ -1,9 +1,55 @@
 const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
+const co = require('co');
 const Group = require('../models/group');
 const User = require('../models/user');
 const HttpError = require('../utils/HttpError');
+
+function findGroupById(groupStrId) {
+  return new Promise((resolve, reject) => {
+    Group.findOne({_id: mongoose.Types.ObjectId(groupStrId)}, function (err, group) {
+      if (err) return reject(err);
+      resolve(group);
+    });
+  });
+}
+
+function findUserByOpenid(openid) {
+  return new Promise((resolve, reject) => {
+    User.findOne({openid}, function (err, user) {
+      if (err) return reject(err);
+      resolve(user);
+    });
+  });
+}
+
+function groupInsertUser(groupObjectId, groupMembers, user) {
+  return new Promise((resolve, reject) => {
+    const u = {
+      userId: user._id,
+      nickname: user.nickname,
+      gainBeans: user.gainBeans,
+      remainBeans: user.remainBeans,
+      role: 'MEMBER'
+    };
+    groupMembers.push(u);
+    Group.update({_id: groupObjectId}, {$set: {members: groupMembers}}, function (err, result) {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+}
+
+function userInsertGroup(userObjectId, userGroups, groupObjectId) {
+  return new Promise((resolve, reject) => {
+    userGroups.push(groupObjectId);
+    User.update({_id: userObjectId}, {$set: {groups: userGroups}}, function (err, result) {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+}
 
 router.get('/list', function (req, res, next) {
   const openid = req.query.openid;
@@ -13,6 +59,14 @@ router.get('/list', function (req, res, next) {
     const groups = user ? user.groups : [];
     res.json(groups);
   })
+});
+
+router.get('/:groupId', function (req, res, next) {
+  const groupId = req.params.groupId;
+  Group.findOne({_id: mongoose.Types.ObjectId(groupId)}, function (err, group) {
+    if (err) return next(err);
+    res.json(group);
+  });
 });
 
 router.post('/create_group', function(req, res, next) {
@@ -31,6 +85,8 @@ router.post('/create_group', function(req, res, next) {
       members: [{
         userId: user._id,
         nickname,
+        gainBeans: 0,
+        remainBeans: 0,
         role: 'MASTER'
       }]
     });
@@ -60,18 +116,19 @@ router.post('/search_group', function(req, res, next) {
 
 router.post('/join_group', function(req, res, next) {
   const body = req.body;
+  const openid = body.openid;
   const groupId = body.groupId;
   const password = body.password || '';
   console.log('密码', body, password);
-  Group.findOne({_id: mongoose.Types.ObjectId(groupId), password}, function (err, group) {
-    if (err) {
-      return next(err);
-    }
-    console.log('groups', group);
-    if (!group) {
-      return next(new HttpError(403, '密码错误'));
-    }
+  co(function* () {
+    const group = yield findGroupById(groupId);
+    const user = yield findUserByOpenid(openid);
+    yield groupInsertUser(group._id, group.members, user);
+    yield userInsertGroup(user._id, user.groups, group._id);
     res.status(200).send('加群成功');
+  }).catch((err) => {
+    console.log(`加入群${groupId}失败`, err);
+    next(err);
   });
 });
 

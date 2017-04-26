@@ -16,6 +16,14 @@ const groupSchema = new Schema({
     nickname: {
       type: String
     },
+    gainBeans: {
+      type: Number,
+      default: 0
+    },
+    remainBeans: {
+      type: Number,
+      default: 0
+    },
     role: {
       type: String
     }
