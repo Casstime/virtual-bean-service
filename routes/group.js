@@ -122,13 +122,16 @@ router.post('/join_group', function(req, res, next) {
   console.log('密码', body, password);
   co(function* () {
     const group = yield findGroupById(groupId);
+    if (password !== group.password) {
+      throw new Error('加群密码错误！');
+    }
     const user = yield findUserByOpenid(openid);
     yield groupInsertUser(group._id, group.members, user);
     yield userInsertGroup(user._id, user.groups, group._id);
     res.status(200).send('加群成功');
   }).catch((err) => {
     console.log(`加入群${groupId}失败`, err);
-    next(err);
+    next(new HttpError(500, err));
   });
 });
 
