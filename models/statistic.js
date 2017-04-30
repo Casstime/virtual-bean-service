@@ -17,7 +17,7 @@ const statisticSchema = new Schema({
     ref: 'User',
     required: true
   },
-  count: {
+  beanCount: {
     type: Number,
     required: true
   },

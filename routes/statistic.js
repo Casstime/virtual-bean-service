@@ -7,6 +7,31 @@ const User = require('../models/user');
 const Statistic = require('../models/statistic');
 const HttpError = require('../utils/HttpError');
 
+router.post('/create', function (req, res, next) {
+  const body = req.body;
+  let beanCount;
+  try {
+    beanCount = parseInt(body.beanCount, 10);
+  } catch (e) {
+    return next(new HttpError(500, e.message));
+  }
+  const statistic = new Statistic({
+    groupId: mongoose.Types.ObjectId(body.groupId),
+    fromUserId: mongoose.Types.ObjectId(body.fromUserId),
+    toUserId: mongoose.Types.ObjectId(body.toUserId),
+    beanCount,
+    reason: body.reason
+  });
+  statistic.save(function (err, result) {
+    if (err) {
+      console.warn('创建统计记录失败', err);
+      return next(new HttpError('创建统计记录失败'));
+    }
+    console.log('创建统计记录成功', result);
+    res.json(result);
+  });
+});
+
 router.get('/:count', function (req, res, next) {
   let count = req.params.count;
   count = parseInt(count, 10) || 10;
@@ -58,31 +83,6 @@ router.get('/:count', function (req, res, next) {
       res.json(records);
     });
   }
-});
-
-router.post('/create', function (req, res, next) {
-  const body = req.body;
-  let beanCount;
-  try {
-    beanCount = parseInt(body.beanCount, 10);
-  } catch (e) {
-    return next(new HttpError(500, e.message));
-  }
-  const statistic = new Statistic({
-    groupId: mongoose.Types.ObjectId(body.groupId),
-    fromUserId: mongoose.Types.ObjectId(body.fromUserId),
-    toUserId: mongoose.Types.ObjectId(body.toUserId),
-    beanCount,
-    reason: body.reason
-  });
-  statistic.save(function (err, result) {
-    if (err) {
-      console.warn('创建统计记录失败', err);
-      return next(new HttpError('创建统计记录失败'));
-    }
-    console.log('创建统计记录成功', result);
-    res.json(result);
-  });
 });
 
 module.exports = router;
