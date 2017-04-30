@@ -21,6 +21,7 @@ const routes = require('./routes/index');
 const user = require('./routes/user');
 const login = require('./routes/login');
 const group = require('./routes/group');
+const statistic = require('./routes/statistic');
 
 const app = express();
 
@@ -41,6 +42,7 @@ app.use('/', routes);
 app.use('/user', user);
 app.use('/login', login);
 app.use('/group', group);
+app.use('/statistic', statistic);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

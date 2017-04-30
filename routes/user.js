@@ -7,6 +7,8 @@ const uuid = require('node-uuid');
 const LoginService = require('qcloud-weapp-server-sdk').LoginService;
 const User= require('../models/user');
 
-router.get('');
+router.get('/', function (req, res, next) {
+  res.json({});
+});
 
 module.exports = router;
