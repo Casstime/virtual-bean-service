@@ -17,9 +17,12 @@ const statisticSchema = new Schema({
     ref: 'User',
     required: true
   },
-  beanCount: {
+  count: {
     type: Number,
     required: true
+  },
+  reason: {
+    type: String
   }
 },{
   timestamps: true

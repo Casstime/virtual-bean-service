@@ -72,7 +72,8 @@ router.post('/create', function (req, res, next) {
     groupId: mongoose.Types.ObjectId(body.groupId),
     fromUserId: mongoose.Types.ObjectId(body.fromUserId),
     toUserId: mongoose.Types.ObjectId(body.toUserId),
-    beanCount
+    beanCount,
+    reason: body.reason
   });
   statistic.save(function (err, result) {
     if (err) {
