@@ -74,6 +74,7 @@ router.get('/:groupId', function (req, res, next) {
   const groupId = req.params.groupId;
   Group.findOne({_id: mongoose.Types.ObjectId(groupId)}, function (err, group) {
     if (err) return next(err);
+    console.log('获取群信息', group);
     res.json(group);
   });
 });
