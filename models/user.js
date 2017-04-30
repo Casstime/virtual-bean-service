@@ -8,14 +8,6 @@ const userSchema = new Schema({
   nickname: {
     type: String
   },
-  gainBeans: {
-    type: Number,
-    default: 0
-  },
-  remainBeans: {
-    type: Number,
-    default: 0
-  },
   groups: [{
     type: Schema.Types.ObjectId,
     ref: 'Group'

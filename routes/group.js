@@ -24,13 +24,13 @@ function findUserByOpenid(openid) {
   });
 }
 
-function groupInsertUser(groupObjectId, groupMembers, user) {
+function groupInsertUser(groupObjectId, groupMembers, user, nickname) {
   return new Promise((resolve, reject) => {
     const u = {
       userId: user._id,
-      nickname: user.nickname,
-      gainBeans: user.gainBeans,
-      remainBeans: user.remainBeans,
+      nickname,
+      gainBeans: 0,
+      remainBeans: 50,
       role: 'MEMBER'
     };
     groupMembers.push(u);
@@ -45,6 +45,15 @@ function userInsertGroup(userObjectId, userGroups, groupObjectId) {
   return new Promise((resolve, reject) => {
     userGroups.push(groupObjectId);
     User.update({_id: userObjectId}, {$set: {groups: userGroups}}, function (err, result) {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+}
+
+function updateGroupMembers(groupObjectId, members) {
+  return new Promise((resolve, reject) => {
+    Group.update({_id: groupObjectId}, {$set: {members}}, function (err, result) {
       if (err) return reject(err);
       resolve(result);
     });
@@ -86,7 +95,7 @@ router.post('/create_group', function(req, res, next) {
         userId: user._id,
         nickname,
         gainBeans: 0,
-        remainBeans: 0,
+        remainBeans: 50,
         role: 'MASTER'
       }]
     });
@@ -105,7 +114,7 @@ router.post('/create_group', function(req, res, next) {
 router.post('/search_group', function(req, res, next) {
   const groupName = req.body.groupName || '';
   console.log('群名', req.body, groupName);
-  Group.find({name: {$regex: groupName, $options:'i'}}, {members: 0}, function (err, groups) {
+  Group.find({name: {$regex: groupName, $options:'i'}}, {members: 0, password: 0}, function (err, groups) {
     if (err) {
       return next(err);
     }
@@ -117,6 +126,7 @@ router.post('/search_group', function(req, res, next) {
 router.post('/join_group', function(req, res, next) {
   const body = req.body;
   const openid = body.openid;
+  const nickname = body.nickname;
   const groupId = body.groupId;
   const password = body.password || '';
   console.log('密码', body, password);
@@ -126,12 +136,50 @@ router.post('/join_group', function(req, res, next) {
       throw new Error('加群密码错误！');
     }
     const user = yield findUserByOpenid(openid);
-    yield groupInsertUser(group._id, group.members, user);
+    yield groupInsertUser(group._id, group.members, user, nickname);
     yield userInsertGroup(user._id, user.groups, group._id);
     res.status(200).send('加群成功');
   }).catch((err) => {
     console.log(`加入群${groupId}失败`, err);
     next(new HttpError(500, err));
+  });
+});
+
+router.post('/reset/gain_beans', function (req, res, next) {
+  const body = req.body;
+  const count = body.count || 0;
+  const groupId = body.groupId;
+  co(function* () {
+    const group = yield findGroupById(groupId);
+    const members = group.members;
+    const resetedMembers = members.map((member) => {
+      member.gainBeans = count;
+      return member;
+    });
+    const result = yield updateGroupMembers(group._id, resetedMembers);
+    res.json(result);
+  }).catch((err) => {
+    console.warn('重置获得豆子数失败', err);
+    next(new HttpError(500, '重置获得豆子数失败'));
+  });
+});
+
+router.post('/reset/remain_beans', function (req, res, next) {
+  const body = req.body;
+  const count = body.count || 50;
+  const groupId = body.groupId;
+  co(function* () {
+    const group = yield findGroupById(groupId);
+    const members = group.members;
+    const resetedMembers = members.map((member) => {
+      member.remainBeans = count;
+      return member;
+    });
+    const result = yield updateGroupMembers(group._id, resetedMembers);
+    res.json(result);
+  }).catch((err) => {
+    console.warn('重置剩余豆子数失败', err);
+    next(new HttpError(500, '重置剩余豆子数失败'));
   });
 });
 
