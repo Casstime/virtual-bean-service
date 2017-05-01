@@ -26,12 +26,13 @@ const statisticSchema = new Schema({
     type: String
   }
 },{
-  timestamps: true
+  timestamps: true,
+  toJSON: {virtuals: true}
 });
 
 statisticSchema.virtual('formatCreatedAt')
   .get(function () {
-    return moment(this.createdAt).format('M月D日 H:mm');
+    return moment(this.createdAt).format('M月D日 HH:mm');
   });
 
 const Statistic = mongoose.model('Statistic', statisticSchema);
