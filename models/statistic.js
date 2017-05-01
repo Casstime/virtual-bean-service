@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const moment = require('moment');
 
 const statisticSchema = new Schema({
   group: {
@@ -27,6 +28,11 @@ const statisticSchema = new Schema({
 },{
   timestamps: true
 });
+
+statisticSchema.virtual('formatCreatedAt')
+  .get(function () {
+    return moment(this.createdAt).format('M月D日 H:mm');
+  });
 
 const Statistic = mongoose.model('Statistic', statisticSchema);
 
