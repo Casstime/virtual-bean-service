@@ -2,17 +2,17 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const statisticSchema = new Schema({
-  groupId: {
+  group: {
     type: Schema.Types.ObjectId,
     ref: 'Group',
     required: true
   },
-  fromUserId: {
+  fromUser: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  toUserId: {
+  toUser: {
     type: Schema.Types.ObjectId,
     ref: 'User',
     required: true

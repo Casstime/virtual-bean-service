@@ -16,9 +16,9 @@ router.post('/create', function (req, res, next) {
     return next(new HttpError(500, e.message));
   }
   const statistic = new Statistic({
-    groupId: mongoose.Types.ObjectId(body.groupId),
-    fromUserId: mongoose.Types.ObjectId(body.fromUserId),
-    toUserId: mongoose.Types.ObjectId(body.toUserId),
+    group: mongoose.Types.ObjectId(body.groupId),
+    fromUser: mongoose.Types.ObjectId(body.fromUserId),
+    toUser: mongoose.Types.ObjectId(body.toUserId),
     beanCount,
     reason: body.reason
   });
@@ -40,10 +40,10 @@ router.get('/:count', function (req, res, next) {
   const before = req.query.before;
   if (!after && !before) {
     Statistic.find({
-      groupId: mongoose.Types.ObjectId(groupId)
-    }).populate('groupId', ['_id', 'name'])
-      .populate('fromUserId', ['_id', 'openid', 'nickname'])
-      .populate('toUserId', ['_id', 'openid', 'nickname'])
+      group: mongoose.Types.ObjectId(groupId)
+    }).populate('group', ['_id', 'name'])
+      .populate('fromUser', ['_id', 'openid', 'nickname'])
+      .populate('toUser', ['_id', 'openid', 'nickname'])
       .limit(count).sort('createdAt').exec(function (err, records) {
       if (err) {
         console.warn(`获取最近${count}条记录出错`, err);
@@ -54,11 +54,11 @@ router.get('/:count', function (req, res, next) {
     });
   } else if (after) {
     Statistic.find({
-      groupId: mongoose.Types.ObjectId(groupId),
+      group: mongoose.Types.ObjectId(groupId),
       createdAt: {$gt: after}
-    }).populate('groupId', ['_id', 'name'])
-      .populate('fromUserId', ['_id', 'openid', 'nickname'])
-      .populate('toUserId', ['_id', 'openid', 'nickname'])
+    }).populate('group', ['_id', 'name'])
+      .populate('fromUser', ['_id', 'openid', 'nickname'])
+      .populate('toUser', ['_id', 'openid', 'nickname'])
       .limit(count).sort('createdAt').exec(function (err, records) {
       if (err) {
         console.warn(`获取最近${count}条记录出错`, err);
@@ -69,11 +69,11 @@ router.get('/:count', function (req, res, next) {
     });
   } else {
     Statistic.find({
-      groupId: mongoose.Types.ObjectId(groupId),
+      group: mongoose.Types.ObjectId(groupId),
       createdAt: {$lt: before}
-    }).populate('groupId', ['_id', 'name'])
-      .populate('fromUserId', ['_id', 'openid', 'nickname'])
-      .populate('toUserId', ['_id', 'openid', 'nickname'])
+    }).populate('group', ['_id', 'name'])
+      .populate('fromUser', ['_id', 'openid', 'nickname'])
+      .populate('toUser', ['_id', 'openid', 'nickname'])
       .limit(count).sort('createdAt').exec(function (err, records) {
       if (err) {
         console.warn(`获取最近${count}条记录出错`, err);
