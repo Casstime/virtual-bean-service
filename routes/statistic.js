@@ -45,21 +45,22 @@ router.get('/', function (req, res, next) {
       return next(new HttpError(500, `获取最近${count}条记录出错`));
     }
     if (skipCount >= c) {
-      return res.json([]);
+      res.json([]);
+    } else {
+      Statistic.find({
+        group: mongoose.Types.ObjectId(groupId)
+      }).populate('group', ['_id', 'name'])
+        .populate('fromUser', ['_id', 'openid', 'nickname'])
+        .populate('toUser', ['_id', 'openid', 'nickname'])
+        .sort('-createdAt').skip(skipCount).limit(count).exec(function (err, records) {
+        if (err) {
+          console.warn(`获取最近${count}条记录出错`, err);
+          return next(new HttpError(500, `获取最近${count}条记录出错`));
+        }
+        console.log(`获取最近${count}条记录成功`, records);
+        res.json(records);
+      });
     }
-    Statistic.find({
-      group: mongoose.Types.ObjectId(groupId)
-    }).populate('group', ['_id', 'name'])
-      .populate('fromUser', ['_id', 'openid', 'nickname'])
-      .populate('toUser', ['_id', 'openid', 'nickname'])
-      .sort('-createdAt').skip(skipCount).limit(count).exec(function (err, records) {
-      if (err) {
-        console.warn(`获取最近${count}条记录出错`, err);
-        return next(new HttpError(500, `获取最近${count}条记录出错`));
-      }
-      console.log(`获取最近${count}条记录成功`, records);
-      res.json(records);
-    });
   });
 });
 
