@@ -44,7 +44,7 @@ router.get('/:count', function (req, res, next) {
     }).populate('group', ['_id', 'name'])
       .populate('fromUser', ['_id', 'openid', 'nickname'])
       .populate('toUser', ['_id', 'openid', 'nickname'])
-      .limit(count).sort('createdAt').exec(function (err, records) {
+      .limit(count).sort('-createdAt').exec(function (err, records) {
       if (err) {
         console.warn(`获取最近${count}条记录出错`, err);
         return next(new HttpError(500, `获取最近${count}条记录出错`));
@@ -59,7 +59,7 @@ router.get('/:count', function (req, res, next) {
     }).populate('group', ['_id', 'name'])
       .populate('fromUser', ['_id', 'openid', 'nickname'])
       .populate('toUser', ['_id', 'openid', 'nickname'])
-      .limit(count).sort('createdAt').exec(function (err, records) {
+      .limit(count).sort('-createdAt').exec(function (err, records) {
       if (err) {
         console.warn(`获取最近${count}条记录出错`, err);
         return next(new HttpError(500, `获取最近${count}条记录出错`));
@@ -74,7 +74,7 @@ router.get('/:count', function (req, res, next) {
     }).populate('group', ['_id', 'name'])
       .populate('fromUser', ['_id', 'openid', 'nickname'])
       .populate('toUser', ['_id', 'openid', 'nickname'])
-      .limit(count).sort('createdAt').exec(function (err, records) {
+      .limit(count).sort('-createdAt').exec(function (err, records) {
       if (err) {
         console.warn(`获取最近${count}条记录出错`, err);
         return next(new HttpError(500, `获取最近${count}条记录出错`));
