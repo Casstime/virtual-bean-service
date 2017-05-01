@@ -40,7 +40,7 @@ router.get('/:count', function (req, res, next) {
   const before = req.query.before;
   if (!after && !before) {
     Statistic.find({
-      _id: mongoose.Types.ObjectId(groupId)
+      groupId: mongoose.Types.ObjectId(groupId)
     }).populate('groupId', ['_id', 'name'])
       .populate('fromUserId', ['_id', 'openid', 'nickname'])
       .populate('toUserId', ['_id', 'openid', 'nickname'])
@@ -54,7 +54,7 @@ router.get('/:count', function (req, res, next) {
     });
   } else if (after) {
     Statistic.find({
-      _id: mongoose.Types.ObjectId(groupId),
+      groupId: mongoose.Types.ObjectId(groupId),
       createdAt: {$gt: after}
     }).populate('groupId', ['_id', 'name'])
       .populate('fromUserId', ['_id', 'openid', 'nickname'])
@@ -69,7 +69,7 @@ router.get('/:count', function (req, res, next) {
     });
   } else {
     Statistic.find({
-      _id: mongoose.Types.ObjectId(groupId),
+      groupId: mongoose.Types.ObjectId(groupId),
       createdAt: {$lt: before}
     }).populate('groupId', ['_id', 'name'])
       .populate('fromUserId', ['_id', 'openid', 'nickname'])
