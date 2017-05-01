@@ -32,57 +32,27 @@ router.post('/create', function (req, res, next) {
   });
 });
 
-router.get('/:count', function (req, res, next) {
-  let count = req.params.count;
+router.get('/', function (req, res, next) {
+  let count = req.query.count;
+  let pager = req.query.pager;
   count = parseInt(count, 10) || 10;
+  pager = parseInt(pager, 10) || 1;
+  const skipCount = (pager - 1) * count;
   const groupId = req.query.groupId;
-  const after = req.query.after;
-  const before = req.query.before;
-  if (!after && !before) {
-    Statistic.find({
-      group: mongoose.Types.ObjectId(groupId)
-    }).populate('group', ['_id', 'name'])
-      .populate('fromUser', ['_id', 'openid', 'nickname'])
-      .populate('toUser', ['_id', 'openid', 'nickname'])
-      .limit(count).sort('-createdAt').exec(function (err, records) {
-      if (err) {
-        console.warn(`获取最近${count}条记录出错`, err);
-        return next(new HttpError(500, `获取最近${count}条记录出错`));
-      }
-      console.log(`获取最近${count}条记录成功`, records);
-      res.json(records);
-    });
-  } else if (after) {
-    Statistic.find({
-      group: mongoose.Types.ObjectId(groupId),
-      createdAt: {$gt: after}
-    }).populate('group', ['_id', 'name'])
-      .populate('fromUser', ['_id', 'openid', 'nickname'])
-      .populate('toUser', ['_id', 'openid', 'nickname'])
-      .limit(count).sort('-createdAt').exec(function (err, records) {
-      if (err) {
-        console.warn(`获取最近${count}条记录出错`, err);
-        return next(new HttpError(500, `获取最近${count}条记录出错`));
-      }
-      console.log(`获取最近${count}条记录成功`, records);
-      res.json(records);
-    });
-  } else {
-    Statistic.find({
-      group: mongoose.Types.ObjectId(groupId),
-      createdAt: {$lt: before}
-    }).populate('group', ['_id', 'name'])
-      .populate('fromUser', ['_id', 'openid', 'nickname'])
-      .populate('toUser', ['_id', 'openid', 'nickname'])
-      .limit(count).sort('-createdAt').exec(function (err, records) {
-      if (err) {
-        console.warn(`获取最近${count}条记录出错`, err);
-        return next(new HttpError(500, `获取最近${count}条记录出错`));
-      }
-      console.log(`获取最近${count}条记录成功`, records);
-      res.json(records);
-    });
-  }
+  Statistic.find({
+    group: mongoose.Types.ObjectId(groupId)
+  }).populate('group', ['_id', 'name'])
+    .populate('fromUser', ['_id', 'openid', 'nickname'])
+    .populate('toUser', ['_id', 'openid', 'nickname'])
+    .sort('-createdAt').skip(skipCount).limit(count).exec(function (err, records) {
+    if (err) {
+      console.warn(`获取最近${count}条记录出错`, err);
+      return next(new HttpError(500, `获取最近${count}条记录出错`));
+    }
+    console.log(`获取最近${count}条记录成功`, records);
+    res.json(records);
+  });
+  
 });
 
 module.exports = router;
