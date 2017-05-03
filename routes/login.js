@@ -5,7 +5,7 @@ const co = require('co');
 const rp = require('request-promise');
 const User = require('../models/user');
 const HttpError = require('../util/HttpError');
-const { createSha1Signature, decrypt, decodeBase64 } = require('../util/utility');
+const { createSha1Signature, decryptData } = require('../util/utility');
 
 function findOrCreateUser(openid) {
   return new Promise((resolve, reject) => {
@@ -46,9 +46,8 @@ router.post('/', (req, res, next) => {
     if (signature2 !== signature) {
       return next(new HttpError(400, '签名不一致'));
     }
-
-
-    const decoded = decrypt(decodeBase64(sessionKey), decodeBase64(iv), decodeBase64(encryptedData));
+    
+    const decoded = decryptData(config.appId, sessionKey, encryptedData, iv);
     console.log('===解密结果====', decoded);
 
     const user = yield findOrCreateUser(result.openid);

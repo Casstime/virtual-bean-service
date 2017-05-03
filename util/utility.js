@@ -6,25 +6,33 @@ function createSha1Signature(str) {
   return sha1.digest('hex');
 }
 
-/**
- * 解密微信encryptedData
- * @param key 解密的key
- * @param iv 向量
- * @param cipher
- * @returns {*|Progress|Query}
- */
-function decrypt(key, iv, cipher) {
-  cipher = Buffer.from(cipher, 'base64').toString('binary');
-  const decipher = crypto.createDecipheriv('aes-128-cbc', key, iv);
-  let decoded = decipher.update(cipher, 'binary', 'utf8');
-  decoded += decipher.final('utf8');
-  return decoded;
-}
+function decryptData(appId, sessionKey, encryptedData, iv) {
+    // base64 decode
+    sessionKey = Buffer.from(sessionKey, 'base64');
+    encryptedData = Buffer.from(encryptedData, 'base64');
+    iv = new Buffer(iv, 'base64');
 
-function decodeBase64(encoded) {
-  return Buffer.from(encoded, 'base64').toString();
+    try {
+      // 解密
+      const decipher = crypto.createDecipheriv('aes-128-cbc', sessionKey, iv);
+      // 设置自动 padding 为 true，删除填充补位
+      decipher.setAutoPadding(true);
+      let decoded = decipher.update(encryptedData, 'binary', 'utf8');
+      decoded += decipher.final('utf8');
+
+      decoded = JSON.parse(decoded);
+
+    } catch (err) {
+      throw new Error('Illegal Buffer');
+    }
+
+    if (decoded.watermark.appid !== appId) {
+      throw new Error('Illegal Buffer');
+    }
+
+    return decoded;
 }
 
 module.exports = {
-  createSha1Signature, decrypt, decodeBase64
+  createSha1Signature, decryptData
 };
