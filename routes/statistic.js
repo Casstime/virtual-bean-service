@@ -6,36 +6,15 @@ const Group = require('../models/group');
 const User = require('../models/user');
 const Statistic = require('../models/statistic');
 const HttpError = require('../utils/HttpError');
-
-function saveStatistic(statistic) {
-  return new Promise((resolve, reject) => {
-    statistic.save((err, result) => {
-      if (err) return reject(err);
-      resolve(result);
-    });
-  });
-}
-
-function updateRemainBeans(fromUserObjId, count) {
-  return new Promise((resolve, reject) => {
-    User.update({_id: fromUserObjId}, {$inc: {remainBeans: -count}}, function (err, result) {
-      if (err) return reject(err);
-      resolve(result);
-    });
-  });
-}
-
-function updateGainBeans(toUserObjId, count) {
-  return new Promise((resolve, reject) => {
-    User.update({_id: toUserObjId}, {$inc: {remainBeans: count}}, function (err, result) {
-      if (err) return reject(err);
-      resolve(result);
-    });
-  });
-}
+const {
+  saveStatistic,
+  getGroupMembersById,
+  updateGroupMembers
+} = require('../services');
 
 router.post('/create', function (req, res, next) {
   const body = req.body;
+  const groupId= mongoose.Types.ObjectId(body.groupId);
   const fromUserId = mongoose.Types.ObjectId(body.fromUserId);
   const toUserId = mongoose.Types.ObjectId(body.toUserId);
   let beanCount;
@@ -45,7 +24,7 @@ router.post('/create', function (req, res, next) {
     return next(new HttpError(500, e.message));
   }
   const statistic = new Statistic({
-    group: mongoose.Types.ObjectId(body.groupId),
+    group: groupId,
     fromUser: fromUserId,
     toUser: toUserId,
     beanCount,
@@ -53,8 +32,17 @@ router.post('/create', function (req, res, next) {
   });
   co(function* () {
     const result = yield saveStatistic(statistic);
-    yield updateRemainBeans(fromUserId, beanCount);
-    yield updateGainBeans(toUserId, beanCount);
+    let members = yield getGroupMembersById(groupId);
+    members = members.map((item) => {
+      if (item.userId === body.fromUserId) {
+        item.remainBeans -= beanCount;
+      }
+      if (item.userId === body.toUserId) {
+        item.gainBeans += beanCount;
+      }
+      return item;
+    });
+    yield updateGroupMembers(groupId, members);
     console.log('创建统计记录成功', result);
     res.json(result);
   }).catch(err => {
