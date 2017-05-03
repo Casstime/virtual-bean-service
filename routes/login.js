@@ -49,12 +49,29 @@ router.post('/', (req, res, next) => {
 
     const decoded = decryptData(config.appId, sessionKey, encryptedData, iv);
     console.log('===解密结果====', decoded);
+    let rawDataEqual = true;
+    for (const key of Object.keys(rawData)) {
+      if (rawData[key] !== decoded[key]) {
+        rawDataEqual = false;
+        break;
+      }
+    }
+    if (!rawDataEqual) {
+      return next(new HttpError(400, 'rawData与encryptedData不一致'));
+    }
+    if (decoded.openid !== result.openid) {
+      return next(new HttpError(400, 'openid与微信接口获取不一致'));
+    }
+
+    // todo:生成3rd_session，redis储存，过期校验
 
     const user = yield findOrCreateUser(result.openid);
     res.json({ sessionKey, openid: result.openid, userId: user._id });
   }).catch((err) => {
     console.warn('获取session_key失败', err);
-    next(new HttpError(500, '获取session_key失败'));
+    // 网络请求错误，数据库查询错误
+    // 解密错误，向客户端返回500错误
+    next(err);
   });
 });
 
