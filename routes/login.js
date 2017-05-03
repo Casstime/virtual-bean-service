@@ -24,6 +24,7 @@ router.post('/', (req, res, next) => {
   const jsCode = body.code;
   const rawData = body.rawData;
   const encryptedData = body.encryptedData;
+  const iv = body.iv;
   const signature = body.signature;
   const options = {
     uri: 'https://api.weixin.qq.com/sns/jscode2session',
@@ -46,8 +47,8 @@ router.post('/', (req, res, next) => {
       return next(new HttpError(400, '签名不一致'));
     }
 
-    const iv = aseKey = decodeBase64(sessionKey);
-    const decoded = decrypt(aseKey, iv, decodeBase64(encryptedData));
+
+    const decoded = decrypt(decodeBase64(sessionKey), decodeBase64(iv), decodeBase64(encryptedData));
     console.log('===解密结果====', decoded);
 
     const user = yield findOrCreateUser(result.openid);
