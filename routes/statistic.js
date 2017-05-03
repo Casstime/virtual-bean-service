@@ -7,8 +7,37 @@ const User = require('../models/user');
 const Statistic = require('../models/statistic');
 const HttpError = require('../utils/HttpError');
 
+function saveStatistic(statistic) {
+  return new Promise((resolve, reject) => {
+    statistic.save((err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+}
+
+function updateRemainBeans(fromUserObjId, count) {
+  return new Promise((resolve, reject) => {
+    User.update({_id: fromUserObjId}, {$inc: {remainBeans: -count}}, function (err, result) {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+}
+
+function updateGainBeans(toUserObjId, count) {
+  return new Promise((resolve, reject) => {
+    User.update({_id: toUserObjId}, {$inc: {remainBeans: count}}, function (err, result) {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+}
+
 router.post('/create', function (req, res, next) {
   const body = req.body;
+  const fromUserId = mongoose.Types.ObjectId(body.fromUserId);
+  const toUserId = mongoose.Types.ObjectId(body.toUserId);
   let beanCount;
   try {
     beanCount = parseInt(body.beanCount, 10);
@@ -17,18 +46,20 @@ router.post('/create', function (req, res, next) {
   }
   const statistic = new Statistic({
     group: mongoose.Types.ObjectId(body.groupId),
-    fromUser: mongoose.Types.ObjectId(body.fromUserId),
-    toUser: mongoose.Types.ObjectId(body.toUserId),
+    fromUser: fromUserId,
+    toUser: toUserId,
     beanCount,
     reason: body.reason
   });
-  statistic.save(function (err, result) {
-    if (err) {
-      console.warn('创建统计记录失败', err);
-      return next(new HttpError('创建统计记录失败'));
-    }
+  co(function* () {
+    const result = yield saveStatistic(statistic);
+    yield updateRemainBeans(fromUserId, beanCount);
+    yield updateGainBeans(toUserId, beanCount);
     console.log('创建统计记录成功', result);
     res.json(result);
+  }).catch(err => {
+    console.warn('创建统计记录失败', err);
+    next(new HttpError('创建统计记录失败'));
   });
 });
 
