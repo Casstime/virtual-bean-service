@@ -50,7 +50,6 @@ router.post('/create', function (req, res, next) {
       });
       yield updateGroupMembers(groupId, mems);
     } catch (e) {
-      console.warn('创建统计记录失败', e);
       return next(new HttpError(400, '剩余的豆子不足'));
     }
     let result;
