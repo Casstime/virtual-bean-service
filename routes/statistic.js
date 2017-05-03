@@ -33,11 +33,12 @@ router.post('/create', function (req, res, next) {
   co(function* () {
     const result = yield saveStatistic(statistic);
     let members = yield getGroupMembersById(groupId);
+    console.log(`获取群组${body.groupId}的成员列表`, members)
     members = members.map((item) => {
-      if (item.userId === body.fromUserId) {
+      if (item.userId === fromUserId) {
         item.remainBeans -= beanCount;
       }
-      if (item.userId === body.toUserId) {
+      if (item.userId === toUserId) {
         item.gainBeans += beanCount;
       }
       return item;
