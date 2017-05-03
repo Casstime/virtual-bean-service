@@ -4,14 +4,14 @@ const mongoose = require('mongoose');
 const co = require('co');
 const Group = require('../models/group');
 const User = require('../models/user');
-const HttpError = require('../utils/HttpError');
+const HttpError = require('../util/HttpError');
 const {
   findGroupById,
   findUserByOpenid,
   groupInsertUser,
   userInsertGroup,
   updateGroupMembers
-} = require('../services');
+} = require('../services/db');
 
 
 
