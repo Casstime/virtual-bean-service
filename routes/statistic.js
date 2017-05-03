@@ -35,16 +35,16 @@ router.post('/create', function (req, res, next) {
     let members = yield getGroupMembersById(groupId);
     console.log(`获取群组${body.groupId}的成员列表`, members)
     members = members.map((item) => {
-      if (item.userId === fromUserId) {
+      if (item.userId === body.fromUserId) {
         item.remainBeans -= beanCount;
       }
-      if (item.userId === toUserId) {
+      if (item.userId === body.toUserId) {
         item.gainBeans += beanCount;
       }
       return item;
     });
     yield updateGroupMembers(groupId, members);
-    console.log('创建统计记录成功', result);
+    console.log('创建统计记录成功', result, members);
     res.json(result);
   }).catch(err => {
     console.warn('创建统计记录失败', err);
