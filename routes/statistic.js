@@ -32,9 +32,9 @@ router.post('/create', function (req, res, next) {
   });
   co(function* () {
     const result = yield saveStatistic(statistic);
-    let members = yield getGroupMembersById(groupId);
+    const members = yield getGroupMembersById(groupId);
     console.log(`获取群组${body.groupId}的成员列表`, members)
-    members = members.map((item) => {
+    const mems = members.map((item) => {
       if (item.userId === body.fromUserId) {
         item.remainBeans -= beanCount;
       }
@@ -44,8 +44,8 @@ router.post('/create', function (req, res, next) {
       console.log('====item========', item);
       return item;
     });
-    yield updateGroupMembers(groupId, members);
-    console.log('创建统计记录成功', result, members);
+    yield updateGroupMembers(groupId, mems);
+    console.log('创建统计记录成功', result, mems);
     res.json(result);
   }).catch(err => {
     console.warn('创建统计记录失败', err);
