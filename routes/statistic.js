@@ -35,10 +35,12 @@ router.post('/create', function (req, res, next) {
     const members = yield getGroupMembersById(groupId);
     console.log(`获取群组${body.groupId}的成员列表`, members)
     const mems = members.map((item) => {
-      if (item.userId === body.fromUserId) {
+      if (item.userId.equals(fromUserId)) {
+        console.log('---fromUserid----')
         item.remainBeans -= beanCount;
       }
-      if (item.userId === body.toUserId) {
+      if (item.userId.equals(toUserId)) {
+        console.log('---toUserid----')
         item.gainBeans += beanCount;
       }
       console.log('====item========', item);
