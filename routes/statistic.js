@@ -31,27 +31,29 @@ router.post('/create', function (req, res, next) {
     reason: body.reason
   });
   co(function* () {
-    const result = yield saveStatistic(statistic);
     const members = yield getGroupMembersById(groupId);
     console.log(`获取群组${body.groupId}的成员列表`, members)
+    const fromUser = members.find((item) => item.userId.equals(fromUserId));
+    if (fromUser && fromUser.remainBeans < beanCount) {
+      throw(new Error('剩余的豆子不足'));
+    }
     const mems = members.map((item) => {
+      // mongoose中ObjectId的比较
       if (item.userId.equals(fromUserId)) {
-        console.log('---fromUserid----')
         item.remainBeans -= beanCount;
       }
       if (item.userId.equals(toUserId)) {
-        console.log('---toUserid----')
         item.gainBeans += beanCount;
       }
-      console.log('====item========', item);
       return item;
     });
     yield updateGroupMembers(groupId, mems);
+    const result = yield saveStatistic(statistic);
     console.log('创建统计记录成功', result, mems);
     res.json(result);
   }).catch(err => {
     console.warn('创建统计记录失败', err);
-    next(new HttpError('创建统计记录失败'));
+    next(new HttpError(500, err.message || '创建统计记录失败'));
   });
 });
 
