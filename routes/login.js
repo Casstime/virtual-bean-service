@@ -46,7 +46,7 @@ router.post('/', (req, res, next) => {
     if (signature2 !== signature) {
       return next(new HttpError(400, '签名不一致'));
     }
-    
+
     const decoded = decryptData(config.appId, sessionKey, encryptedData, iv);
     console.log('===解密结果====', decoded);
 
