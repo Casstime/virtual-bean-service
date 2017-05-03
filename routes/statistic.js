@@ -41,6 +41,7 @@ router.post('/create', function (req, res, next) {
       if (item.userId === body.toUserId) {
         item.gainBeans += beanCount;
       }
+      console.log('====item========', item);
       return item;
     });
     yield updateGroupMembers(groupId, members);
