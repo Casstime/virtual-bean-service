@@ -5,17 +5,11 @@ const favicon = require('serve-favicon');
 const logger = require('morgan');
 const cookieParser = require('cookie-parser');
 const bodyParser = require('body-parser');
-const weappSession = require('weapp-session');
-const qcloud = require('qcloud-weapp-server-sdk');
 const config = require('config');
 const mongoose = require('mongoose');
+const redis = require('redis');
 
 mongoose.connect('mongodb://localhost/virtualbean');
-
-qcloud.config({
-  ServerHost: 'www.javenleung.com',
-  AuthServerUrl: 'https://www.javenleung.com/user'
-});
 
 const routes = require('./routes/index');
 const user = require('./routes/user');
@@ -70,6 +64,5 @@ if (app.get('env') === 'development') {
 app.use(function(err, req, res, next) {
   res.status(err.status || 500).send(err.message);
 });
-
 
 module.exports = app;

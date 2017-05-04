@@ -4,9 +4,9 @@ const uuidV4 = require('uuid/v4');
 const config = require('config');
 
 function createSha1Signature(str) {
-  const sha1 = crypto.createHash('sha1');
-  sha1.update(str);
-  return sha1.digest('hex');
+  const shasum = crypto.createHash('sha1');
+  shasum.update(str);
+  return shasum.digest('hex');
 }
 
 function decryptData(appId, sessionKey, encryptedData, iv) {
@@ -37,11 +37,26 @@ function decryptData(appId, sessionKey, encryptedData, iv) {
   return decoded;
 }
 
-function createSessionid(openid, sessionKey) {
+function encode(cryptKey, ivBuffer, clearData) {
+  const encipher = crypto.createCipheriv('aes-128-cbc', cryptKey, ivBuffer);
+  let encoded = encipher.update(clearData, 'utf8', 'binary');
+  encoded += encipher.final('binary');
+  encoded = Buffer.from(encoded, 'binary').toString('base64');
+  return encoded;
+}
+
+function createSessionid(sessionKey, iv) {
   const uuid = uuidV4();
   const timestamp = moment().valueOf();
   const version = config.version;
-  return '';
+  const clearData = JSON.stringify({
+    rand: uuid,
+    timestamp,
+    version
+  });
+  const cryptKey = Buffer.from(sessionKey, 'base64');
+  const ivBuffer = Buffer.from(iv, 'base64');
+  return encode(cryptKey, ivBuffer, clearData);
 }
 
 module.exports = {

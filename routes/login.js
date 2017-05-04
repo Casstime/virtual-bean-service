@@ -5,7 +5,7 @@ const co = require('co');
 const rp = require('request-promise');
 const User = require('../models/user');
 const HttpError = require('../util/HttpError');
-const { createSha1Signature, decryptData } = require('../util/utility');
+const { createSha1Signature, decryptData, createSessionid } = require('../util/utility');
 
 function findOrCreateUser(openid) {
   return new Promise((resolve, reject) => {
@@ -63,7 +63,9 @@ router.post('/', (req, res, next) => {
       return next(new HttpError(400, 'openid与微信接口获取不一致'));
     }
 
-    // todo:生成3rd_session，redis储存，过期校验
+    // todo:redis储存，过期校验
+    const sessionid = createSessionid(sessionKey, iv);
+    console.log('===生成的sessionid====', sessionid);
 
     const user = yield findOrCreateUser(result.openid);
     res.json({ sessionKey, openid: result.openid, userId: user._id });
