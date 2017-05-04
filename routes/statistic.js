@@ -5,12 +5,12 @@ const co = require('co');
 const Group = require('../models/group');
 const User = require('../models/user');
 const Statistic = require('../models/statistic');
-const HttpError = require('../utils/HttpError');
+const HttpError = require('../util/HttpError');
 const {
   saveStatistic,
   getGroupMembersById,
   updateGroupMembers
-} = require('../services');
+} = require('../services/db');
 
 router.post('/create', function (req, res, next) {
   const body = req.body;
