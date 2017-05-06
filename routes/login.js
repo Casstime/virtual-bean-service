@@ -47,11 +47,12 @@ router.post('/', (req, res, next) => {
       return next(new HttpError(400, '签名不一致'));
     }
 
+    const rawObj = JSON.parse(rawData);
     const decoded = decryptData(config.appId, sessionKey, encryptedData, iv);
     console.log('===解密结果====', decoded);
     let rawDataEqual = true;
-    for (const key of Object.keys(rawData)) {
-      if (rawData[key] !== decoded[key]) {
+    for (const key of Object.keys(rawObj)) {
+      if (rawObj[key] !== decoded[key]) {
         rawDataEqual = false;
         break;
       }
