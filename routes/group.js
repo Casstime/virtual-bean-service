@@ -71,7 +71,7 @@ router.post('/create_group', function(req, res, next) {
 router.post('/search_group', function(req, res, next) {
   const groupName = req.body.groupName || '';
   console.log('群名', req.body, groupName);
-  Group.find({name: {$regex: groupName, $options:'i'}}, {members: 0, password: 0}, function (err, groups) {
+  Group.find({name: {$regex: groupName, $options:'i'}}, {password: 0}, function (err, groups) {
     if (err) {
       return next(err);
     }
