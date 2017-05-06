@@ -60,7 +60,7 @@ router.post('/', (req, res, next) => {
     if (!rawDataEqual) {
       return next(new HttpError(400, 'rawData与encryptedData不一致'));
     }
-    if (decoded.openid !== result.openid) {
+    if (decoded.openId !== result.openid) {
       return next(new HttpError(400, 'openid与微信接口获取不一致'));
     }
 
