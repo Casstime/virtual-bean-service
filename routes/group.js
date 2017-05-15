@@ -13,9 +13,6 @@ const {
   updateGroupMembers
 } = require('../services/db');
 
-
-
-
 router.get('/list', function (req, res, next) {
   const openid = req.query.openid;
   User.findOne({openid}).populate('groups', ['_id', 'name']).exec(function (err, user) {
