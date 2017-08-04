@@ -1,4 +1,5 @@
 .idea
 /cert/
 /node_modules/
+/ssl/
 config.json
